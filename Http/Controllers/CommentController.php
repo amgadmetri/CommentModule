@@ -36,7 +36,7 @@ class CommentController extends Controller {
 
 	public function postAddcomment(CommentFormRequest $request)
 	{
-		if (!(Auth::check()))
+		if ( ! Auth::check())
 		{
 			$token            = $this->comment->createIpToken();
 			$data['ip_token'] = $token;
@@ -52,8 +52,8 @@ class CommentController extends Controller {
 			$token            = $this->comment->createIpToken();
 			$data['ip_token'] = $token;
 
-			$data['name'] =Auth::user()->name ;
-			$data['email'] =Auth::user()->email ;
+			$data['name']  = Auth::user()->name ;
+			$data['email'] = Auth::user()->email ;
 			$this->comment->createComment(array_merge($request->all(),  $data));
 			return redirect()->back()->
 			with('message', 'Comment sent and waiting for approval');
