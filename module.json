@@ -1,7 +1,7 @@
 {
 	"name": "Comment",
 	"slug": "comment",
-	"version": "1.0",
+	"version": "1.1",
 	"description": "This is the description for the Comment module.",
 	"enabled": true
 }
