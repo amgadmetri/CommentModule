@@ -1,8 +1,6 @@
 @extends('comment::master')
 <style type="text/css"> 
-  li {
-    list-style: none;
-  }
+  li {list-style: none;}
 </style>
 @section('content')
 <div class="container">

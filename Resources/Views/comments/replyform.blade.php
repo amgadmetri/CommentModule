@@ -1,9 +1,6 @@
 <form method="post" action="{{ url('comment/addreply') }}">
   <input name="_token" type="hidden" value="{{ csrf_token() }}">
 
-  <input name="item_id" type="hidden" value="1">
-  <input name="item_type" type="hidden" value="content">
-
   <div class="form-group">
     @if(empty($commentData))
     <label for="name">Username:</label>
@@ -20,7 +17,7 @@
     @endif
   </div>
   <div class="form-group">
-  @if(empty($commentData))
+    @if(empty($commentData))
     <label for="email">Email:</label>
     <input 
     type="email" 
@@ -56,7 +53,11 @@
   </div>
 
   <input name="parent_id" type="hidden" value='{{ $comment->id }}'>
-  <input name="user_id" type="hidden" value="1">
+  @if( ! Auth::check())
+  <input name="user_id" type="hidden" value="0">
+  @else
+  <input name="user_id" type="hidden" value="{{ Auth::user()->id }}">
+  @endif
   <input name="ip_address" type="hidden" value='{{ Request::getClientIp() }}'>
 
 

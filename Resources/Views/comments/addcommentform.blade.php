@@ -1,9 +1,6 @@
 <form method="post">
   <input name="_token" type="hidden" value="{{ csrf_token() }}">
 
-  <input name="item_id" type="hidden" value="1">
-  <input name="item_type" type="hidden" value="content">
-
   <div class="form-group">
     @if(empty($commentData))
     <label for="name">Username:</label>

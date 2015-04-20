@@ -40,6 +40,8 @@ class CommentController extends Controller {
 		{
 			$token            = $this->comment->createIpToken();
 			$data['ip_token'] = $token;
+			$data['item_id'] = 1;
+			$data['item_type'] = "content";
 
 			$this->comment->createComment(array_merge($request->all(),  $data));
 
@@ -51,9 +53,10 @@ class CommentController extends Controller {
 		{
 			$token            = $this->comment->createIpToken();
 			$data['ip_token'] = $token;
-
-			$data['name'] =Auth::user()->name ;
-			$data['email'] =Auth::user()->email ;
+			$data['item_id'] = 1;
+			$data['item_type'] = "content";
+			$data['name'] 	  = Auth::user()->name ;
+			$data['email'] 	  = Auth::user()->email ;
 			$this->comment->createComment(array_merge($request->all(),  $data));
 			return redirect()->back()->
 			with('message', 'Comment sent and waiting for approval');
@@ -72,6 +75,8 @@ class CommentController extends Controller {
 	{
 		$token            = $this->comment->createIpToken();
 		$data['ip_token'] = $token;
+		$data['item_id'] = 1;
+		$data['item_type'] = "content";
 
 		$this->comment->createComment(array_merge($request->all(),  $data));
 
@@ -110,7 +115,8 @@ class CommentController extends Controller {
 	public function getUpdate($id)
 	{
 		$comment = $this->comment->getComment($id);
-		if (!(Request::cookie('ip_token') == $comment->ip_token)) 
+
+		if (Request::cookie('ip_token') !== $comment->ip_token && Auth::user()->id !== $comment->user_id) 
 		{
 			return redirect('comment/addcomment');
 		}
