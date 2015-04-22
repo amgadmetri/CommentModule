@@ -4,7 +4,6 @@
 	"version": "1.1",
 	"description": "It is a module for the comment system of the website to add and edit and delete comments by registered and unregistered users.",
 	"repo_link": "https://github.com/amgadmetri/MarvelComment.git",
-    "type" : "plugin",
+	"type" : "plugin",
 	"enabled": true
-	
 }
