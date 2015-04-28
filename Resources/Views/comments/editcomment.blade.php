@@ -1,4 +1,4 @@
-@extends('comment::master')
+@extends('app')
 @section('content')
 <div class="container">
 	<div class="col-sm-9">
@@ -52,9 +52,6 @@
 			</div>
 			
 		</form>
-
-
-
 
 	</div>
 </div>

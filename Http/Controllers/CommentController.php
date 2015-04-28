@@ -4,6 +4,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Comment\Http\Requests\CommentFormRequest;
 use App\Modules\Comment\Http\Requests\EditCommentFormRequest;
 use App\Modules\Comment\Repositories\CommentRepository;
+
 use Carbon\Carbon;
 use Request;
 use Cookie;
@@ -25,42 +26,50 @@ class CommentController extends Controller {
 		return view('comment::comments.comment' , compact('comments'));
 	}
 
-	public function getAddcomment()
-	{
-		$commentData = Auth::check() ? Auth::user() : $this->comment->checkIpToken();
-		$comments    = $this->comment->getAllComments(); 
-		$html        = $this->getCommentTree($commentData);
-
-		return view('comment::comments.addcomment', compact('comments', 'html', 'commentData'));
-	}
-
 	public function postAddcomment(CommentFormRequest $request)
 	{
 		if ( ! Auth::check())
 		{
-			$token            = $this->comment->createIpToken();
-			$data['ip_token'] = $token;
-			$data['item_id'] = 1;
-			$data['item_type'] = "content";
+			$token             = $this->comment->createIpToken();
+			$data['ip_token']  = $token;
 
 			$this->comment->createComment(array_merge($request->all(),  $data));
 
+			if($request->ajax())
+			{
+				$item              = $request->get('item_type');
+				$itemId            = $request->get('item_id');
+				$commentModuleName = $request->get('commentModuleName');
+				$commentOwner      = \Auth::check() ? \Auth::user() : $this->comment->checkIpToken();
+
+				return $this->comment->getCommentTree($commentOwner, $item, $itemId, $commentModuleName);
+			}
+
 			return redirect()->back()->
-			withCookie(Cookie::forever('ip_token', $token))->
-			with('message', 'Comment sent and waiting for approval');
+			       withCookie(Cookie::forever('ip_token', $token))->
+			       with('message', 'Comment sent and waiting for approval');
 		}
 		else
 		{
 			$token             = $this->comment->createIpToken();
 			$data['ip_token']  = $token;
-			$data['item_id']   = 1;
-			$data['item_type'] = "content";
 			$data['name']      = Auth::user()->name ;
 			$data['email']     = Auth::user()->email;
 
 			$this->comment->createComment(array_merge($request->all(),  $data));
+
+			if($request->ajax())
+			{
+				$item              = $request->get('item_type');
+				$itemId            = $request->get('item_id');
+				$commentModuleName = $request->get('commentModuleName');
+				$commentOwner      = \Auth::check() ? \Auth::user() : $this->comment->checkIpToken();
+
+				return $this->comment->getCommentTree($commentOwner, $item, $itemId, $commentModuleName);
+			}
+
 			return redirect()->back()->
-			with('message', 'Comment sent and waiting for approval');
+			       with('message', 'Comment sent and waiting for approval');
 
 		}
 		
@@ -76,8 +85,6 @@ class CommentController extends Controller {
 	{
 		$token            = $this->comment->createIpToken();
 		$data['ip_token'] = $token;
-		$data['item_id'] = 1;
-		$data['item_type'] = "content";
 
 		$this->comment->createComment(array_merge($request->all(),  $data));
 
@@ -97,22 +104,6 @@ class CommentController extends Controller {
 		return redirect()->back();
 	}
 
-	public function getCommentTree($commentData, $parent_id = 0)
-	{
-		$comments = $this->comment->getAllComments();
-		$html = '<li>';
-		foreach ($comments as $comment)
-		{
-			if ($comment->parent_id == $parent_id)
-			{
-				$html .= view('comment::comments.commenttemplate', compact('comment', 'commentData'))->render();
-				$html .= '<ul>' . $this->getCommentTree($commentData, $comment->id) . '</ul>';
-			}
-		}
-		$html .= '</li>';
-		return $html;
-	}
-
 	public function getUpdate($id)
 	{
 		$comment = $this->comment->getComment($id);
@@ -130,5 +121,10 @@ class CommentController extends Controller {
 
 		$this->comment->updateComment($id, array_merge($request->all()));
 		return redirect('comment/addcomment');
+	}
+
+	public function getPaginate($commentOwner, $item, $itemId, $commentModuleName = 'mediaLibrary')
+	{
+		return $this->comment->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName);
 	}
 }

@@ -1,4 +1,4 @@
-@extends('comment::master')
+@extends('app')
 
 @section('content')
 <div class="container">
@@ -65,8 +65,8 @@
               @endforeach
 
             </ul>
-            <a class="btn btn-success btn-xs" href='{{ url("/comment/approveall") }}' data-toggle="tooltip" data-placement="left" title="Approve">
-              <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> approve all comments
+            <a class="btn btn-success btn-xs" href='{{ url("/comment/approveall") }}'>
+              approve all comments
             </a>
           </div>
         </div>

@@ -21,6 +21,12 @@ class CommentServiceProvider extends ServiceProvider
 		// methods or service providers to keep the code more focused and granular.
 		App::register('App\Modules\Comment\Providers\RouteServiceProvider');
 
+		//Bind CommentRepository Facade to the IoC Container
+		App::bind('CommentRepository', function()
+		{
+			return new App\Modules\Comment\Repositories\CommentRepository;
+		});
+
 		$this->registerNamespaces();
 	}
 
