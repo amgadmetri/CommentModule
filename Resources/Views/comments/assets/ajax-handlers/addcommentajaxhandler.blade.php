@@ -9,6 +9,7 @@
 				},
 
 				prepare: function (formId) {
+					addComment.formId                  = formId;
 					addComment.form                    = $(formId);
 					addComment.errormessageContainer   = $('div#{{ $commentModuleName }}errormessageContainer');
 					addComment.messageContainer        = $('div#{{ $commentModuleName }}messageContainer');
@@ -16,15 +17,13 @@
 					addComment.errormessageContainerUl = addComment.errormessageContainer.find("ul");
 					addComment.CommentContent          = $('div#{{ $commentModuleName }}CommentContent');
 					addComment.url                     = addComment.form.attr('action');
-					
-					addComment.messageContainer.hide();
-					addComment.errormessageContainer.hide();
 				},
 
 				events: function () {
-					addComment.form.submit(function(e) {
+					$(document).on('submit',addComment.formId ,function(e) {
 						e.preventDefault();
 						addComment.data = new FormData(addComment.form[0]);  
+						addComment.prepare(addComment.formId);
 						addComment.ajaxAction();
 					});
 				},
@@ -39,7 +38,7 @@
 						contentType : false,
 						success: function(data)
 						{
-							addComment.messageContainer.show();
+							addComment.messageContainer.removeClass('hidden');
 							addComment.messageContainerUl.find("li").remove();
 
 							addComment.messageContainerUl.append('<li>Comment created successfully.</li>')
@@ -48,12 +47,13 @@
 
 							setTimeout(function() {
 								addComment.messageContainer.fadeOut();
+								addComment.messageContainer.addClass('hidden');
 								addComment.messageContainerUl.find("li").remove();
 							}, 5000);
 						},
 						error: function(data, error, errorThrown)
 						{
-							addComment.errormessageContainer.show();
+							addComment.errormessageContainer.removeClass('hidden');
 							addComment.errormessageContainerUl.find("li").remove();
 
 							$.each(JSON.parse(data.responseText), function(index, value){
@@ -62,6 +62,7 @@
 
 							setTimeout(function() {
 								addComment.errormessageContainer.fadeOut();
+								addComment.errormessageContainer.addClass('hidden');
 								addComment.errormessageContainerUl.find("li").remove();
 							}, 5000);
 						}

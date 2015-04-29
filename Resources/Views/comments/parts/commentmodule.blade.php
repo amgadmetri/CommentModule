@@ -6,13 +6,13 @@
     {!! $commentTree !!}
   </div>
 
-  <div class="alert alert-danger" id="{{ $commentModuleName }}errormessageContainer">
+  <div class="alert alert-danger hidden" id="{{ $commentModuleName }}errormessageContainer">
     <strong>Whoops!</strong> There were some problems with your input.<br><br>
     <ul>
     </ul>
   </div>
 
-  <div class="alert alert-success" id="{{ $commentModuleName }}messageContainer">
+  <div class="alert alert-success hidden" id="{{ $commentModuleName }}messageContainer">
     <ul>
     </ul>
   </div>
@@ -27,5 +27,7 @@
     list-style: none;
   }
 </style>
-@include('comment::comments.assets.ajax-handlers.commentajaxhandler')
+@include('comment::comments.assets.ajax-handlers.addcommentajaxhandler')
+@include('comment::comments.assets.ajax-handlers.editcommentajaxhandler')
+@include('comment::comments.assets.ajax-handlers.deletecommentajaxhandler')
 @include('comment::comments.assets.ajax-handlers.paginationcommentajaxhandler')

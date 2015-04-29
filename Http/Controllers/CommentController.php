@@ -42,7 +42,7 @@ class CommentController extends Controller {
 				$commentModuleName = $request->get('commentModuleName');
 				$commentOwner      = \Auth::check() ? \Auth::user() : $this->comment->checkIpToken();
 
-				return $this->comment->getCommentTree($commentOwner, $item, $itemId, $commentModuleName);
+				return response($this->comment->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName))->withCookie(Cookie::forever('ip_token', $token));
 			}
 
 			return redirect()->back()->
@@ -65,7 +65,7 @@ class CommentController extends Controller {
 				$commentModuleName = $request->get('commentModuleName');
 				$commentOwner      = \Auth::check() ? \Auth::user() : $this->comment->checkIpToken();
 
-				return $this->comment->getCommentTree($commentOwner, $item, $itemId, $commentModuleName);
+				return response($this->comment->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName))->withCookie(Cookie::forever('ip_token', $token));
 			}
 
 			return redirect()->back()->
@@ -75,9 +75,40 @@ class CommentController extends Controller {
 		
 	}
 
-	public function getDelete($id)
+	public function postEditcomment(EditCommentFormRequest $request, $id)
+	{
+		$comment = $this->comment->getComment($id);
+
+		if (Request::cookie('ip_token') !== $comment->ip_token && Auth::user()->id !== $comment->user_id) 
+		{
+			return redirect('comment/addcomment');
+		}
+
+		$this->comment->updateComment($id, array_merge($request->all()));
+
+		if($request->ajax())
+		{	
+			$comment           = $this->comment->getComment($id);
+			$item              = $request->get('item_type');
+			$itemId            = $request->get('item_id');
+			$commentModuleName = $request->get('commentModuleName');
+			$commentOwner      = \Auth::check() ? \Auth::user() : $this->comment->checkIpToken();
+			
+			return view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentModuleName'))->render();
+		}
+
+		return redirect()->back()->with('message', 'Comment edited successfully.');
+	}
+
+	public function getDelete($id, \Illuminate\Http\Request $request)
 	{
 		$this->comment->deleteComment($id);
+
+		if($request->ajax())
+		{	
+			return 'done';
+		}
+
 		return redirect()->back()->with('message', 'comment Deleted succssefuly');
 	}
 
@@ -102,25 +133,6 @@ class CommentController extends Controller {
 	{
 		$this->comment->approveAllComments();
 		return redirect()->back();
-	}
-
-	public function getUpdate($id)
-	{
-		$comment = $this->comment->getComment($id);
-
-		if (Request::cookie('ip_token') !== $comment->ip_token && Auth::user()->id !== $comment->user_id) 
-		{
-			return redirect('comment/addcomment');
-		}
-		
-		return view('comment::comments.editcomment', compact('comment'));
-	}
-
-	public function postUpdate(EditCommentFormRequest $request, $id)
-	{
-
-		$this->comment->updateComment($id, array_merge($request->all()));
-		return redirect('comment/addcomment');
 	}
 
 	public function getPaginate($commentOwner, $item, $itemId, $commentModuleName = 'mediaLibrary')

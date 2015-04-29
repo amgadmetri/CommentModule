@@ -94,7 +94,7 @@ trait CommentTrait{
 			{
 				if (is_object($comment) && $comment->parent_id == $parent_id)
 				{
-					$commentTree .= view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentModuleName'))->render();
+					$commentTree .= '<div id="' .$commentModuleName . 'singleComment">' . view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentModuleName'))->render() . '</div>';
 					$commentTree .= '<ul>' . $this->getCommentTree($commentOwner, $item, $itemId, $commentModuleName, $comment->id) . '</ul>';
 				}
 			}
