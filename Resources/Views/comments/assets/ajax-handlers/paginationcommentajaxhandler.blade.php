@@ -17,13 +17,14 @@
 				events: function () {
 					$(document).on('click', paginate.paginateId, function(e) {
 						e.preventDefault();
+						paginate.link = $(this).attr('href');
 						paginate.ajaxAction();
 					});
 				},
 
 				ajaxAction: function () {
 					$.ajax({
-						url         : $(paginate.paginateId).attr('href'),
+						url         : paginate.link,
 						type        : 'GET',
 						success		: function(data)
 						{
@@ -41,8 +42,11 @@
 			var commentmodulePrevious =  newPaginateObj();
 			commentmodulePrevious.init("#{{ $commentModuleName }}commentmodulePrevious");
 
-			var commentmoduleNext =  newPaginateObj();
+			var commentmoduleNext     =  newPaginateObj();
 			commentmoduleNext.init("#{{ $commentModuleName }}commentmoduleNext");
+
+			var commentmoduleLinks    =  newPaginateObj();
+			commentmoduleLinks.init("#{{ $commentModuleName }}commentmoduleLinks");
 		});
 
 	}(jQuery));

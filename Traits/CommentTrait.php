@@ -9,7 +9,10 @@ trait CommentTrait{
 	{
 		if($item && $itemId)
 		{
-			return Comment::where('item_type', '=', $item)->where('item_id', '=', $itemId)->paginate('1');
+			return Comment::where('item_type', '=', $item)->
+			                where('item_id', '=', $itemId)->
+			                where('parent_id', '=', 0)->
+			                paginate('1');
 		}
 		return Comment::all();
 	}
@@ -30,10 +33,11 @@ trait CommentTrait{
 	}
 
 	public function createIpToken()
-	{
-		if (Request::cookie('ip_token')) 
+	{	
+		$ipToken = Request::cookie('ip_token');
+		if ($ipToken) 
 		{
-			return Request::cookie('ip_token');
+			return $ipToken;
 		}
 		else
 		{
@@ -43,7 +47,15 @@ trait CommentTrait{
 
 	public function checkIpToken()
 	{
-		return Comment::where('ip_token', '=', $this->createIpToken())->first();
+		$comment = Comment::where('ip_token', '=', $this->createIpToken())->first();
+		if ($comment !== null)
+		{
+			return $comment->id;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	public function approveComment($id)
@@ -70,8 +82,9 @@ trait CommentTrait{
 		return $comment->delete();
 	}
 	
-	public function paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName, $parent_id = 0)
+	public function paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName, $parent_id = 0)
 	{
+		$commentOwner = \Auth::check() ? \AclRepository::getUser($commentOwnerId) : $this->getComment($commentOwnerId);
 		$comments     = $this->getAllComments($item, $itemId);
 		$comments->setPath(url('comment/paginate', [$commentOwner, $item, $itemId, $commentModuleName]));
 
@@ -80,25 +93,23 @@ trait CommentTrait{
 
 		return$commentTree;
 	}
+
 	public function getCommentTree($comments, $commentOwner, $item, $itemId, $commentModuleName, $parent_id = 0)
 	{
 		$commentTree = '<li id="comment-tree">';
-		if(is_object($comments))
+		if( ! $comments->count() && $parent_id == 0)
 		{
-			if( ! $comments->count())
-			{
-				$commentTree .= '<h3><p>No Comments.</p></h3>';
-			}
+			$commentTree .= '<h3><p>No Comments.</p></h3>';
+		}
 
-			foreach ($comments as $comment)
+		foreach ($comments as $comment)
+		{
+			if ($comment->parent_id == $parent_id)
 			{
-				if (is_object($comment) && $comment->parent_id == $parent_id)
-				{
-					$commentTree .= '<div id="' .$commentModuleName . 'singleComment">' . view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentModuleName'))->render() . '</div>';
-					$commentTree .= '<ul>' . $this->getCommentTree($commentOwner, $item, $itemId, $commentModuleName, $comment->id) . '</ul>';
-				}
+				$commentTree .= '<div id="' .$commentModuleName . 'singleComment">' . view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentModuleName'))->render() . '</div>';
+				$commentTree .= '<ul>' . $this->getCommentTree($comment->replies, $commentOwner, $item, $itemId, $commentModuleName, $comment->id) . '</ul>';
 			}
 		}
-		return $commentTree;
+		return $commentTree . '</li>';
 	}
 }

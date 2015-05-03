@@ -21,7 +21,6 @@ class Comment extends Model {
 		Comment::deleting(function($comments)
 		{
 			$comments->replies()->delete();
-				
 		});
 	}
 }

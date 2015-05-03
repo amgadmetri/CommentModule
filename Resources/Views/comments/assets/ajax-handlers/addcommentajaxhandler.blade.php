@@ -1,29 +1,27 @@
 <script type="text/javascript">
 	(function ($) {
-
+		
 		function newAddCommentObj(){
 			var addComment = {
-				init: function (formId) {
-					addComment.prepare(formId);
+				init: function (formClass) {
+					addComment.prepare(formClass);
 					addComment.events();
 				},
 
-				prepare: function (formId) {
-					addComment.formId                  = formId;
-					addComment.form                    = $(formId);
-					addComment.errormessageContainer   = $('div#{{ $commentModuleName }}errormessageContainer');
-					addComment.messageContainer        = $('div#{{ $commentModuleName }}messageContainer');
+				prepare: function (formClass) {
+					addComment.formClass               = formClass;
+					addComment.errormessageContainer   = $('div#{{ $commentModuleName }}addErrormessageContainer');
+					addComment.messageContainer        = $('div#{{ $commentModuleName }}addMessageContainer');
 					addComment.messageContainerUl      = addComment.messageContainer.find("ul");
 					addComment.errormessageContainerUl = addComment.errormessageContainer.find("ul");
 					addComment.CommentContent          = $('div#{{ $commentModuleName }}CommentContent');
-					addComment.url                     = addComment.form.attr('action');
 				},
 
 				events: function () {
-					$(document).on('submit',addComment.formId ,function(e) {
+					$(document).on('submit',addComment.formClass ,function(e) {
 						e.preventDefault();
-						addComment.data = new FormData(addComment.form[0]);  
-						addComment.prepare(addComment.formId);
+						addComment.data = new FormData(this);
+						addComment.url  = $(this).attr('action');
 						addComment.ajaxAction();
 					});
 				},
@@ -39,6 +37,7 @@
 						success: function(data)
 						{
 							addComment.messageContainer.removeClass('hidden');
+							addComment.messageContainer.show();
 							addComment.messageContainerUl.find("li").remove();
 
 							addComment.messageContainerUl.append('<li>Comment created successfully.</li>')
@@ -53,11 +52,13 @@
 						},
 						error: function(data, error, errorThrown)
 						{
+							console.log(data.responseText);
 							addComment.errormessageContainer.removeClass('hidden');
+							addComment.errormessageContainer.show();
 							addComment.errormessageContainerUl.find("li").remove();
 
 							$.each(JSON.parse(data.responseText), function(index, value){
-								addComment.errormessageContainer.append('<li>' + value + '</li>')
+								addComment.errormessageContainerUl.append('<li>' + value + '</li>')
 							});
 
 							setTimeout(function() {
@@ -71,13 +72,11 @@
 			}
 			return addComment;
 		}
-
 		$(document).ready(function (){
 
 			var form_add_comment =  newAddCommentObj();
-			form_add_comment.init("#{{ $commentModuleName }}add_comment_form");
+			form_add_comment.init(".add_comment_form");
 
 		});
-
 	}(jQuery));
 </script>

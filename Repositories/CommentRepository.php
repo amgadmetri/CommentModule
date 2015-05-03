@@ -9,9 +9,11 @@ class CommentRepository
 
 	public function getCommentTemplate($item, $itemId, $commentModuleName = 'comment_module')
 	{
-		$commentOwner = \Auth::check() ? \Auth::user() : $this->checkIpToken();
-		$commentTree  = $this->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName);
-
-		return view('comment::comments.parts.commentmodule', compact('comments', 'commentTree', 'commentOwner', 'itemId', 'item', 'commentModuleName'))->render();
+		$commentOwnerId             = \Auth::check() ? \Auth::user()->id : $this->checkIpToken();
+		$commentOwner               = \Auth::check() ? \AclRepository::getUser($commentOwnerId) : $this->getComment($commentOwnerId);
+		$unrigesteredUserCanComment = \InstallationRepository::getSettingValuByKey('Allow Unregisterd User To Comment', 'comment')[0];
+		$commentTree                = $this->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName);
+		
+		return view('comment::comments.parts.commentmodule', compact('commentTree', 'commentOwner', 'itemId', 'item', 'commentModuleName', 'unrigesteredUserCanComment'))->render();
 	}
 }

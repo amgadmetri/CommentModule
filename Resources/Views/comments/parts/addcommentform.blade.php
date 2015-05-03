@@ -1,4 +1,4 @@
-<form method="post" id="{{ $commentModuleName }}add_comment_form" action="{{ url('comment/addcomment') }}">
+<form method ="post" class  ="add_comment_form" action ="{{ url('comment/addcomment') }}">
   <input name="_token" type="hidden" value="{{ csrf_token() }}">
 
   <div class="form-group">
@@ -62,7 +62,6 @@
   <input name="parent_id" type="hidden" value="{{ $parent_id }}">
   <input name="item_id" type="hidden" value="{{ $itemId }}">
   <input name="item_type" type="hidden" value="{{ $item }}">
-  <input name="approved" type="hidden" value="pending">
   <input name="ip_address" type="hidden" value='{{ Request::getClientIp() }}'>
   <input name="commentModuleName" type="hidden" value='{{ $commentModuleName }}'>
   

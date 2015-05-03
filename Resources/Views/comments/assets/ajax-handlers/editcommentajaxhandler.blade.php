@@ -3,27 +3,25 @@
 
 		function neweditCommentObj(){
 			var editComment = {
-				init: function (formId) {
-					editComment.prepare(formId);
+				init: function (formClass) {
+					editComment.prepare(formClass);
 					editComment.events();
 				},
 
-				prepare: function (formId) {
-					editComment.formId                  = formId;
-					editComment.form                    = $(formId);
-					editComment.errormessageContainer   = $('div#{{ $commentModuleName }}editErrormessageContainer');
-					editComment.messageContainer        = $('div#{{ $commentModuleName }}editMessageContainer');
-					editComment.messageContainerUl      = editComment.messageContainer.find("ul");
-					editComment.errormessageContainerUl = editComment.errormessageContainer.find("ul");
-					editComment.CommentContent          = $('div#{{ $commentModuleName }}singleComment');
-					editComment.url                     = editComment.form.attr('action');
+				prepare: function (formClass) {
+					editComment.formClass = formClass;
 				},
 
 				events: function () {
-					$(document).on('submit', editComment.formId, function(e) {
+					$(document).on('submit',editComment.formClass ,function(e) {
 						e.preventDefault();
-						editComment.prepare(editComment.formId);
-						editComment.data = new FormData(editComment.form[0]);  
+						editComment.data                    = new FormData(this);
+						editComment.url                     = $(this).attr('action');
+						editComment.CommentContent          = $(this).parents('div#{{ $commentModuleName }}singleComment');
+						editComment.errormessageContainer   = editComment.CommentContent.find('div#{{ $commentModuleName }}editErrormessageContainer');
+						editComment.messageContainer        = editComment.CommentContent.find('div#{{ $commentModuleName }}editMessageContainer');
+						editComment.messageContainerUl      = editComment.messageContainer.find("ul");
+						editComment.errormessageContainerUl = editComment.errormessageContainer.find("ul");
 						editComment.ajaxAction();
 					});
 				},
@@ -39,6 +37,7 @@
 						success: function(data)
 						{
 							editComment.messageContainer.removeClass('hidden');
+							editComment.messageContainer.show();
 							editComment.messageContainerUl.find("li").remove();
 
 							editComment.messageContainerUl.append('<li>Comment edited successfully.</li>')
@@ -55,6 +54,7 @@
 						error: function(data, error, errorThrown)
 						{
 							editComment.errormessageContainer.removeClass('hidden');
+							editComment.errormessageContainer.show();
 							editComment.errormessageContainerUl.find("li").remove();
 
 							$.each(JSON.parse(data.responseText), function(index, value){
@@ -76,7 +76,7 @@
 		$(document).ready(function (){
 
 			var form_edit_comment =  neweditCommentObj();
-			form_edit_comment.init("#{{ $commentModuleName }}edit_comment_form");
+			form_edit_comment.init(".{{ $commentModuleName }}edit_comment_form");
 
 		});
 

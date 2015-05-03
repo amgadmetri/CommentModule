@@ -3,24 +3,22 @@
 
 		function newdeleteCommentObj(){
 			var deleteComment = {
-				init: function (linkId) {
-					deleteComment.prepare(linkId);
+				init: function (linkClass) {
+					deleteComment.prepare(linkClass);
 					deleteComment.events();
 				},
 
-				prepare: function (linkId) {
-					deleteComment.linkId                  = linkId;
-					deleteComment.link                    = $(linkId);
-					deleteComment.CommentContent          = $('div#{{ $commentModuleName }}singleComment');
-					deleteComment.errormessageContainer   = $('div#{{ $commentModuleName }}deleteErrormessageContainer');
-					deleteComment.errormessageContainerUl = deleteComment.errormessageContainer.find("ul");
-					deleteComment.url                     = deleteComment.link.attr('href');
+				prepare: function (linkClass) {
+					deleteComment.linkClass = linkClass;
 				},
 
 				events: function () {
-					$(document).on('click', deleteComment.linkId, function(e) {
+					$(document).on('click', deleteComment.linkClass, function(e) {
 						e.preventDefault();
-						deleteComment.prepare(deleteComment.linkId);
+						deleteComment.url                     = $(this).attr('href');
+						deleteComment.CommentContent          = $(this).parents('div#{{ $commentModuleName }}singleComment');
+						deleteComment.errormessageContainer   = deleteComment.CommentContent.find('div#{{ $commentModuleName }}deleteErrormessageContainer');
+						deleteComment.errormessageContainerUl = deleteComment.errormessageContainer.find("ul");
 						deleteComment.ajaxAction();
 					});
 				},
@@ -35,11 +33,12 @@
 							if(data == 'done')
 							{
 								deleteComment.CommentContent.empty();
-							}	
+							}
 						},
 						error: function(data, error, errorThrown)
 						{
 							deleteComment.errormessageContainer.removeClass('hidden');
+							deleteComment.errormessageContainer.show();
 							deleteComment.errormessageContainerUl.find("li").remove();
 
 							$.each(JSON.parse(data.responseText), function(index, value){
@@ -61,7 +60,7 @@
 		$(document).ready(function (){
 
 			var link_delete_comment =  newdeleteCommentObj();
-			link_delete_comment.init("#{{ $commentModuleName }}delete_comment_link");
+			link_delete_comment.init(".{{ $commentModuleName }}delete_comment_link");
 
 		});
 

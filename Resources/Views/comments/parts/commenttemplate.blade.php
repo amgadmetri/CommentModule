@@ -7,6 +7,7 @@
    </div>
    <div class="col-md-9 col-sm-9">
      <div class="panel panel-default arrow left">
+
        <div class="panel-heading">
          <strong> {{ $comment->name }} </strong>
          {{ $comment->comment_title }}  
@@ -18,10 +19,10 @@
            title          ="{{ $comment->created_at }}" >
 
            @if ($comment->edited === '1')
-           Edited
-           {{ $comment->updated_at->diffForHumans() }} 
+            Edited
+            {{ $comment->updated_at->diffForHumans() }} 
            @else
-           {{ $comment->created_at->diffForHumans() }}
+            {{ $comment->created_at->diffForHumans() }}
            @endif 
          </span>
        </i>
@@ -30,44 +31,55 @@
      <div class="panel-body">
 
        <div class="comment-post">
-         <p> {{ $comment->comment_content }} </p><br>
+
+         <p> 
+          @if($comment->approved == 'accepted')
+            {{ $comment->comment_content }}
+          @elseif($comment->approved == 'pending')
+            comment is waiting for approval.
+          @endif
+         </p>
+         <br>
 
          @if ((Auth::check() && Auth::user()->id === $comment->user_id) || 
-         (Auth::guest() && Request::cookie('ip_token') !== null && Request::cookie('ip_token') === $comment->ip_token))
-         <div class="alert alert-danger hidden" id="{{ $commentModuleName }}deleteErrormessageContainer">
-          <strong>Whoops!</strong> There were some problems with your input.<br><br>
-          <ul>
-          </ul>
-         </div>
-         <p class="text-left"> 
+              (Auth::guest() && Request::cookie('ip_token') !== null && Request::cookie('ip_token') === $comment->ip_token))
+
+           <div class="alert alert-danger hidden" id="{{ $commentModuleName }}deleteErrormessageContainer">
+            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <ul>
+            </ul>
+           </div>
+
+           <p class="text-left"> 
+             <p class="text-right">
+               <a data-toggle="collapse" href="#{{ $comment->id }}edit">
+                 <i class="fa fa-edit"></i>
+                 Edit
+                 <a href='{{ url("/comment/delete/$comment->id") }}' class="{{ $commentModuleName }}delete_comment_link">
+                   <i class="fa fa-remove"></i>
+                   Delete
+                 </a> 
+               </a>
+             </p>
+             <div class="collapse" id="{{ $comment->id }}edit">
+               <div class="well">
+                 @include('comment::comments.parts.editcommentform', ['comment' => $comment])
+               </div>
+             </div>
+           </p>
+
+           @else
            <p class="text-right">
-             <a data-toggle="collapse" href="#{{ $comment->id }}edit">
-               <i class="fa fa-edit"></i>
-               Edit
-               <a href='{{ url("/comment/delete/$comment->id") }}' id="{{ $commentModuleName }}delete_comment_link">
-                 <i class="fa fa-remove"></i>
-                 Delete
-               </a> 
+             <a data-toggle="collapse" href="#{{ $comment->id }}reply">
+               <i class="fa fa-reply"></i>
+               Reply
              </a>
            </p>
-           <div class="collapse" id="{{ $comment->id }}edit">
+           <div class="collapse" id="{{ $comment->id }}reply">
              <div class="well">
-               @include('comment::comments.parts.editcommentform', ['comment' => $comment])
+               @include('comment::comments.parts.addcommentform', ['parent_id' => $comment->id])
              </div>
            </div>
-         </p>
-         @else
-         <p class="text-right">
-           <a data-toggle="collapse" href="#{{ $comment->id }}reply">
-             <i class="fa fa-reply"></i>
-             Reply
-           </a>
-         </p>
-         <div class="collapse" id="{{ $comment->id }}reply">
-           <div class="well">
-             @include('comment::comments.parts.addcommentform', ['parent_id' => $comment->id])
-           </div>
-         </div>
          @endif
 
        </div>        

@@ -6,18 +6,20 @@
     {!! $commentTree !!}
   </div>
 
-  <div class="alert alert-danger hidden" id="{{ $commentModuleName }}errormessageContainer">
+  <div class="alert alert-danger hidden" id="{{ $commentModuleName }}addErrormessageContainer">
     <strong>Whoops!</strong> There were some problems with your input.<br><br>
     <ul>
     </ul>
   </div>
 
-  <div class="alert alert-success hidden" id="{{ $commentModuleName }}messageContainer">
+  <div class="alert alert-success hidden" id="{{ $commentModuleName }}addMessageContainer">
     <ul>
     </ul>
   </div>
-
-  @include('comment::comments.parts.addcommentform', ['parent_id' => 0])
+  
+  @if($unrigesteredUserCanComment == 'True' || Auth::check())
+    @include('comment::comments.parts.addcommentform', ['parent_id' => 0])
+  @endif
 </section>
 
 

@@ -5,7 +5,6 @@ use App\Modules\Comment\Http\Requests\CommentFormRequest;
 use App\Modules\Comment\Http\Requests\EditCommentFormRequest;
 use App\Modules\Comment\Repositories\CommentRepository;
 
-use Carbon\Carbon;
 use Request;
 use Cookie;
 use Auth;
@@ -19,7 +18,6 @@ class CommentController extends Controller {
 		$this->comment = $comment;
 	}
 
- 	//display all the comments
 	public function getIndex()
 	{
 		$comments = $this->comment->getAllComments();
@@ -28,11 +26,13 @@ class CommentController extends Controller {
 
 	public function postAddcomment(CommentFormRequest $request)
 	{
+		$allowCommentApproval = \InstallationRepository::getSettingValuByKey('Allow Comment Approval', 'comment')[0];
+
 		if ( ! Auth::check())
 		{
-			$token             = $this->comment->createIpToken();
-			$data['ip_token']  = $token;
-
+			$token                = $this->comment->createIpToken();
+			$data['ip_token']     = $token;
+			$data['approved']     = $allowCommentApproval == 'False' ? 'accepted' : 'pending';
 			$this->comment->createComment(array_merge($request->all(),  $data));
 
 			if($request->ajax())
@@ -40,9 +40,9 @@ class CommentController extends Controller {
 				$item              = $request->get('item_type');
 				$itemId            = $request->get('item_id');
 				$commentModuleName = $request->get('commentModuleName');
-				$commentOwner      = \Auth::check() ? \Auth::user() : $this->comment->checkIpToken();
+				$commentOwnerId    = \Auth::check() ? \Auth::user()->id : $this->comment->checkIpToken();
 
-				return response($this->comment->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName))->withCookie(Cookie::forever('ip_token', $token));
+				return response($this->comment->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName))->withCookie(Cookie::forever('ip_token', $token));
 			}
 
 			return redirect()->back()->
@@ -51,10 +51,9 @@ class CommentController extends Controller {
 		}
 		else
 		{
-			$token             = $this->comment->createIpToken();
-			$data['ip_token']  = $token;
-			$data['name']      = Auth::user()->name ;
-			$data['email']     = Auth::user()->email;
+			$data['name']     = Auth::user()->name ;
+			$data['email']    = Auth::user()->email;
+			$data['approved'] = $allowCommentApproval == 'False' || \AclRepository::userHasGroup(\Auth::user()->id, 'admin') ? 'accepted' : 'pending';
 
 			$this->comment->createComment(array_merge($request->all(),  $data));
 
@@ -63,13 +62,12 @@ class CommentController extends Controller {
 				$item              = $request->get('item_type');
 				$itemId            = $request->get('item_id');
 				$commentModuleName = $request->get('commentModuleName');
-				$commentOwner      = \Auth::check() ? \Auth::user() : $this->comment->checkIpToken();
+				$commentOwnerId    = \Auth::check() ? \Auth::user()->id : $this->comment->checkIpToken();
 
-				return response($this->comment->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName))->withCookie(Cookie::forever('ip_token', $token));
+				return response($this->comment->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName));
 			}
 
-			return redirect()->back()->
-			       with('message', 'Comment sent and waiting for approval');
+			return redirect()->back()->with('message', 'Comment sent and waiting for approval');
 
 		}
 		
@@ -110,17 +108,6 @@ class CommentController extends Controller {
 		}
 
 		return redirect()->back()->with('message', 'comment Deleted succssefuly');
-	}
-
-	public function postAddreply(CommentFormRequest $request)
-	{
-		$token            = $this->comment->createIpToken();
-		$data['ip_token'] = $token;
-
-		$this->comment->createComment(array_merge($request->all(),  $data));
-
-		return redirect()->back()->withCookie(Cookie::forever('ip_token', $token))->
-		with('message', 'Reply sent and waiting for approval');
 	}
 
 	public function getApprove($id)
