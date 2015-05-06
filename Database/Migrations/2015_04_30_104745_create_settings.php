@@ -36,6 +36,6 @@ class CreateSettings extends Migration
 	 */
 	public function down()
 	{
-		
+		DB::table('core_settings')->where('module_key', '=', 'comment')->delete();
 	}
 }

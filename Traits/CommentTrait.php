@@ -12,7 +12,7 @@ trait CommentTrait{
 			return Comment::where('item_type', '=', $item)->
 			                where('item_id', '=', $itemId)->
 			                where('parent_id', '=', 0)->
-			                paginate('1');
+			                paginate('6');
 		}
 		return Comment::all();
 	}

@@ -1,6 +1,6 @@
 <?php namespace App\Modules\Comment\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Modules\Comment\Http\Requests\CommentFormRequest;
 use App\Modules\Comment\Http\Requests\EditCommentFormRequest;
 use App\Modules\Comment\Repositories\CommentRepository;
@@ -9,19 +9,35 @@ use Request;
 use Cookie;
 use Auth;
 
-class CommentController extends Controller {
-
-	private $comment;
+class CommentController extends BaseController {
 	
 	public function __construct(CommentRepository $comment)
 	{
-		$this->comment = $comment;
+		parent::__construct($comment, 'Comments');
 	}
 
 	public function getIndex()
 	{
-		$comments = $this->comment->getAllComments();
+		$this->hasPermission('ApproveComments');
+		$comments = $this->repository->getAllComments();
+
 		return view('comment::comments.comment' , compact('comments'));
+	}
+	
+	public function getApprove($id)
+	{
+		$this->hasPermission('ApproveComments');
+		$this->repository->approveComment($id);
+
+		return redirect()->back();
+	}
+
+	public function getApproveall()
+	{
+		$this->hasPermission('ApproveComments');
+		$this->repository->approveAllComments();
+
+		return redirect()->back();
 	}
 
 	public function postAddcomment(CommentFormRequest $request)
@@ -30,19 +46,19 @@ class CommentController extends Controller {
 
 		if ( ! Auth::check())
 		{
-			$token                = $this->comment->createIpToken();
+			$token                = $this->repository->createIpToken();
 			$data['ip_token']     = $token;
 			$data['approved']     = $allowCommentApproval == 'False' ? 'accepted' : 'pending';
-			$this->comment->createComment(array_merge($request->all(),  $data));
+			$this->repository->createComment(array_merge($request->all(),  $data));
 
 			if($request->ajax())
 			{
 				$item              = $request->get('item_type');
 				$itemId            = $request->get('item_id');
 				$commentModuleName = $request->get('commentModuleName');
-				$commentOwnerId    = \Auth::check() ? \Auth::user()->id : $this->comment->checkIpToken();
+				$commentOwnerId    = \Auth::check() ? \Auth::user()->id : $this->repository->checkIpToken();
 
-				return response($this->comment->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName))->withCookie(Cookie::forever('ip_token', $token));
+				return response($this->repository->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName))->withCookie(Cookie::forever('ip_token', $token));
 			}
 
 			return redirect()->back()->
@@ -55,16 +71,16 @@ class CommentController extends Controller {
 			$data['email']    = Auth::user()->email;
 			$data['approved'] = $allowCommentApproval == 'False' || \AclRepository::userHasGroup(\Auth::user()->id, 'admin') ? 'accepted' : 'pending';
 
-			$this->comment->createComment(array_merge($request->all(),  $data));
+			$this->repository->createComment(array_merge($request->all(),  $data));
 
 			if($request->ajax())
 			{
 				$item              = $request->get('item_type');
 				$itemId            = $request->get('item_id');
 				$commentModuleName = $request->get('commentModuleName');
-				$commentOwnerId    = \Auth::check() ? \Auth::user()->id : $this->comment->checkIpToken();
+				$commentOwnerId    = \Auth::check() ? \Auth::user()->id : $this->repository->checkIpToken();
 
-				return response($this->comment->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName));
+				return response($this->repository->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName));
 			}
 
 			return redirect()->back()->with('message', 'Comment sent and waiting for approval');
@@ -75,22 +91,22 @@ class CommentController extends Controller {
 
 	public function postEditcomment(EditCommentFormRequest $request, $id)
 	{
-		$comment = $this->comment->getComment($id);
+		$comment = $this->repository->getComment($id);
 
 		if (Request::cookie('ip_token') !== $comment->ip_token && Auth::user()->id !== $comment->user_id) 
 		{
 			return redirect('comment/addcomment');
 		}
 
-		$this->comment->updateComment($id, array_merge($request->all()));
+		$this->repository->updateComment($id, array_merge($request->all()));
 
 		if($request->ajax())
 		{	
-			$comment           = $this->comment->getComment($id);
+			$comment           = $this->repository->getComment($id);
 			$item              = $request->get('item_type');
 			$itemId            = $request->get('item_id');
 			$commentModuleName = $request->get('commentModuleName');
-			$commentOwner      = \Auth::check() ? \Auth::user() : $this->comment->checkIpToken();
+			$commentOwner      = \Auth::check() ? \Auth::user() : $this->repository->checkIpToken();
 			
 			return view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentModuleName'))->render();
 		}
@@ -100,7 +116,7 @@ class CommentController extends Controller {
 
 	public function getDelete($id, \Illuminate\Http\Request $request)
 	{
-		$this->comment->deleteComment($id);
+		$this->repository->deleteComment($id);
 
 		if($request->ajax())
 		{	
@@ -110,20 +126,8 @@ class CommentController extends Controller {
 		return redirect()->back()->with('message', 'comment Deleted succssefuly');
 	}
 
-	public function getApprove($id)
-	{
-		$this->comment->approveComment($id);
-		return redirect()->back();
-	}
-
-	public function getApproveall()
-	{
-		$this->comment->approveAllComments();
-		return redirect()->back();
-	}
-
 	public function getPaginate($commentOwner, $item, $itemId, $commentModuleName = 'mediaLibrary')
 	{
-		return $this->comment->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName);
+		return $this->repository->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName);
 	}
 }

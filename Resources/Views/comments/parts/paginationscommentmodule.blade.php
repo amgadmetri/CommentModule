@@ -11,8 +11,8 @@
 			<span aria-hidden="true">&larr;</span> Previous
 			</a>
 		</li>
-		
-		@for($i = 1 ; $i <= $comments->total() ; $i++)
+
+		@for($i = 1 ; $i <= $comments->lastPage() ; $i++)
 			<li 
 			@if($comments->currentPage() == $i)
 				class="active"
