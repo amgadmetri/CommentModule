@@ -11,7 +11,7 @@
 |
 */
 
-Route::group(['prefix' => 'comment'], function() {
+Route::group(['prefix' => 'admin/comment'], function() {
 
 	Route::controllers([
 		'/'            => 'CommentController'

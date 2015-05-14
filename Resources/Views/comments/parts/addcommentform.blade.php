@@ -1,4 +1,4 @@
-<form method ="post" class  ="add_comment_form" action ="{{ url('comment/addcomment') }}">
+<form method ="post" class  ="add_comment_form" action ="{{ url('admin/comment/addcomment') }}">
   <input name="_token" type="hidden" value="{{ csrf_token() }}">
 
   <div class="form-group">

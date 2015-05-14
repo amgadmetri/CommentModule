@@ -12,15 +12,15 @@ class CreateCommentPermissions extends Migration
 	 */
 	public function up()
 	{
-		foreach (\InstallationRepository::getModuleParts('comment') as $modulePart) 
+		foreach (\CMS::CoreModuleParts()->getModuleParts('comment') as $modulePart) 
 		{
-			\AclRepository::insertDefaultItemPermissions(
-				$modulePart->part_key, 
-				$modulePart->id, 
-				[
-				'admin'   => ['ApproveComments'],
-				'manager' => ['ApproveComments']
-				]);
+			\CMS::permissions()->insertDefaultItemPermissions(
+				                 $modulePart->part_key, 
+				                 $modulePart->id, 
+				                 [
+					                 'admin'   => ['ApproveComments'],
+					                 'manager' => ['ApproveComments']
+				                 ]);
 		}
 	}
 
@@ -31,9 +31,9 @@ class CreateCommentPermissions extends Migration
 	 */
 	public function down()
 	{
-		foreach (\InstallationRepository::getModuleParts('comment') as $modulePart) 
+		foreach (\CMS::CoreModuleParts()->getModuleParts('comment') as $modulePart) 
 		{
-			\AclRepository::deleteItemPermissions($modulePart->part_key);
+			\CMS::deleteItemPermissions($modulePart->part_key);
 		}
 	}
 }

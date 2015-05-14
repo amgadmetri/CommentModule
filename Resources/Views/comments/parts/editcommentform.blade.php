@@ -9,7 +9,7 @@
   </ul>
 </div>
 
-<form method="post" class="{{ $commentModuleName }}edit_comment_form" action="{{ url('comment/editcomment', $comment->id) }}">
+<form method="post" class="{{ $commentModuleName }}edit_comment_form" action="{{ url('admin/comment/editcomment', $comment->id) }}">
   <input name="_token" type="hidden" value="{{ csrf_token() }}">
 
   <div class="form-group">

@@ -51,11 +51,11 @@
                       Status: {{ $comment->approved }}
                       <div class="action">
                         @if ($comment->approved === 'pending')
-                          <a class="btn btn-success btn-xs" href='{{ url("/comment/approve/$comment->id") }}'>
+                          <a class="btn btn-success btn-xs" href='{{ url("admin/comment/approve/$comment->id") }}'>
                             Approve
                           </a> 
                         @endif
-                        <a class="btn btn-danger btn-xs" href='{{ url("/comment/delete/$comment->id") }}'>
+                        <a class="btn btn-danger btn-xs" href='{{ url("admin/comment/delete/$comment->id") }}'>
                           Delete
                         </a> 
                       </div>
@@ -64,7 +64,7 @@
                 </li>
               @endforeach
             </ul>
-            <a class="btn btn-success btn-xs" href='{{ url("/comment/approveall") }}'>
+            <a class="btn btn-success btn-xs" href='{{ url("admin/comment/approveall") }}'>
               approve all comments
             </a>
           </div>

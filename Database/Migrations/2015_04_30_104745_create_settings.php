@@ -15,12 +15,14 @@ class CreateSettings extends Migration
 		DB::table('core_settings')->insert([
 				array(
 					'key'           => 'Allow Unregisterd User To Comment',
+					'value'         => serialize(['True']),
 					'input_type'    => 'select',
 					'select_values' => serialize(['True', 'False']),
 					'module_key'    => 'comment',
 					),
 				array(
 					'key'           => 'Allow Comment Approval',
+					'value'         => serialize(['True']),
 					'input_type'    => 'select',
 					'select_values' => serialize(['True', 'False']),
 					'module_key'    => 'comment',

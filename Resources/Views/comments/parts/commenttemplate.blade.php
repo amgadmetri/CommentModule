@@ -55,7 +55,7 @@
                <a data-toggle="collapse" href="#{{ $comment->id }}edit">
                  <i class="fa fa-edit"></i>
                  Edit
-                 <a href='{{ url("/comment/delete/$comment->id") }}' class="{{ $commentModuleName }}delete_comment_link">
+                 <a href='{{ url("admin/comment/delete/$comment->id") }}' class="{{ $commentModuleName }}delete_comment_link">
                    <i class="fa fa-remove"></i>
                    Delete
                  </a> 

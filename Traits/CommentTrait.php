@@ -84,7 +84,7 @@ trait CommentTrait{
 	
 	public function paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName, $parent_id = 0)
 	{
-		$commentOwner = \Auth::check() ? \AclRepository::getUser($commentOwnerId) : $this->getComment($commentOwnerId);
+		$commentOwner = \Auth::check() ? \CMS::getUser($commentOwnerId) : $this->getComment($commentOwnerId);
 		$comments     = $this->getAllComments($item, $itemId);
 		$comments->setPath(url('comment/paginate', [$commentOwner, $item, $itemId, $commentModuleName]));
 
