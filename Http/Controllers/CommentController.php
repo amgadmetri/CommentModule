@@ -1,7 +1,7 @@
 <?php namespace App\Modules\Comment\Http\Controllers;
 
 use App\Http\Controllers\BaseController;
-use App\Modules\Comment\Http\Requests\CommentFormRequest;
+use App\Modules\Comment\Http\Requests\AddCommentFormRequest;
 use App\Modules\Comment\Http\Requests\EditCommentFormRequest;
 
 class CommentController extends BaseController {
@@ -12,121 +12,205 @@ class CommentController extends BaseController {
 	 * @var permissions
 	 */
 	protected $permissions = [
-	'Index'      => 'ApproveComments', 
-	'Approve'    => 'ApproveComments' , 
-	'Approveall' => 'ApproveComments'
+	'getIndex'      => 'ApproveComments', 
+	'getApprove'    => 'ApproveComments' , 
+	'getApproveall' => 'ApproveComments'
 	];
 
+	/**
+	 * Create new CommentController instance.
+	 */
 	public function __construct()
 	{
 		parent::__construct('Comments');
 	}
 
+	/**
+	 * Display a listing of the comments.
+	 * 
+	 * @return Response
+	 */
 	public function getIndex()
 	{
 		$comments = \CMS::comments()->all();
 		return view('comment::comments.comment' , compact('comments'));
 	}
 	
+	/**
+	 * Change the status of the comment to approved.
+	 * 
+	 * @param  integer $id
+	 * @return response
+	 */
 	public function getApprove($id)
 	{
 		\CMS::comments()->approveComment($id);
 		return redirect()->back();
 	}
 
+	/**
+	 * Change the status of all pending comments to approved.
+	 * 
+	 * @return response
+	 */
 	public function getApproveall()
 	{
 		\CMS::comments()->approveAllComments();
 		return redirect()->back();
 	}
 
-	public function postAddcomment(CommentFormRequest $request)
-	{
-		$allowCommentApproval = \CMS::coreModuleSettings()->getSettingValuByKey('Allow Comment Approval', 'comment')[0];
+	/**
+	 * Store a newly created comment in storage.
+	 * 
+	 * @param  AddCommentFormRequest $request 
+	 * @return response
+	 */
+	public function postAddcomment(AddCommentFormRequest $request)
+	{	
+		/**
+		 * Get comment settings from the core module settings.
+		 */
+		$allowCommentApproval       = \CMS::coreModuleSettings()->getSettingValuByKey('Allow Comment Approval', 'comment')[0];
+		$unrigesteredUserCanComment = \CMS::coreModuleSettings()->getSettingValuByKey('Allow Unregisterd User To Comment', 'comment')[0];
 
-		if ( ! \Auth::check())
+		if ( ! \Auth::check() && $unrigesteredUserCanComment === 'True')
 		{
-			$token                = \CMS::comments()->createIpToken();
-			$data['ip_token']     = $token;
-			$data['approved']     = $allowCommentApproval == 'False' ? 'accepted' : 'pending';
+			/**
+			 * Get the stored cookie token or create new one.
+			 * 
+			 * @var token
+			 */
+			$token            = \CMS::comments()->createIpToken();
+			$data['ip_token'] = $token;
+			$data['status']   = $allowCommentApproval == 'False' ? 'accepted' : 'pending';
 			\CMS::comments()->create(array_merge($request->all(),  $data));
 
-			if($request->ajax())
+			/**
+			 * If the request is ajax then get the necessary data 
+			 * for returning the comment template html and create
+			 * a cookie with the created token.
+			 */
+			if ($request->ajax())
 			{
-				$item              = $request->get('item_type');
-				$itemId            = $request->get('item_id');
-				$commentModuleName = $request->get('commentModuleName');
-				$commentOwnerId    = \Auth::check() ? \Auth::user()->id : \CMS::comments()->checkIpToken();
+				$item                = $request->get('item_type');
+				$itemId              = $request->get('item_id');
+				$commentTemplateName = $request->get('commentTemplateName');
+				$commentOwnerId      = \CMS::comments()->getCommentOwnerId();
 
-				return response(\CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName))->withCookie(\Cookie::forever('ip_token', $token));
+				return response(\CMS::comments()->
+					                  paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName))->
+				                      withCookie(\Cookie::forever('ip_token', $token));
 			}
 
+			/**
+			 * Redirect back after the comment had been saved 
+			 * and create a cookie with the created token.
+			 */
 			return redirect()->back()->
 			                   withCookie(\Cookie::forever('ip_token', $token))->
-			                   with('message', 'Comment sent and waiting for approval');
+			                   with('message', 'Comment sent');
 		}
 		else
 		{
-			$data['name']     = \Auth::user()->name ;
-			$data['email']    = \Auth::user()->email;
-			$data['approved'] = $allowCommentApproval == 'False' || \CMS::users()->userHasGroup(\Auth::user()->id, 'admin') ? 'accepted' : 'pending';
-
+			$data['name']   = \Auth::user()->name ;
+			$data['email']  = \Auth::user()->email;
+			$data['status'] = $allowCommentApproval == 'False' || \CMS::users()->userHasGroup(\Auth::user()->id, 'admin') ? 'accepted' : 'pending';
 			\CMS::comments()->create(array_merge($request->all(),  $data));
 
+			/**
+			 * If the request is ajax then get the necessary data 
+			 * for returning the comment template html and create
+			 * a cookie with the created token.
+			 */
 			if($request->ajax())
 			{
 				$item              = $request->get('item_type');
 				$itemId            = $request->get('item_id');
-				$commentModuleName = $request->get('commentModuleName');
-				$commentOwnerId    = \Auth::check() ? \Auth::user()->id : \CMS::comments()->checkIpToken();
+				$commentTemplateName = $request->get('commentTemplateName');
+				$commentOwnerId    = \CMS::comments()->getCommentOwnerId();
 
-				return response(\CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentModuleName));
+				return response(\CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName));
 			}
 
 			return redirect()->back()->with('message', 'Comment sent and waiting for approval');
-
 		}
 		
 	}
 
+	/**
+	 * Update the specified comment in storage.
+	 * 
+	 * @param  EditCommentFormRequest $request 
+	 * @param  integer                $id
+	 * @return response
+	 */
 	public function postEditcomment(EditCommentFormRequest $request, $id)
-	{
+	{	
+		/**
+		 * If the user isn't the owner of the comment then redirect back.
+		 */
 		$comment = \CMS::comments()->find($id);
-
 		if (\Request::cookie('ip_token') !== $comment->ip_token && \Auth::user()->id !== $comment->user_id) 
 		{
 			return redirect('admin/comment/addcomment');
 		}
 
-		\CMS::comments()->update($id, array_merge($request->all()));
+		\CMS::comments()->update($id, $request->all());
 
+		/**
+		 * If the request is ajax then get the necessary data 
+		 * for returning the comment template html and create
+		 * a cookie with the created token.
+		 */
 		if($request->ajax())
 		{	
-			$item              = $request->get('item_type');
-			$itemId            = $request->get('item_id');
-			$commentModuleName = $request->get('commentModuleName');
-			$commentOwner      = \Auth::check() ? \Auth::user() : \CMS::comments()->checkIpToken();
+			$item                = $request->get('item_type');
+			$itemId              = $request->get('item_id');
+			$commentTemplateName = $request->get('commentTemplateName');
+			$commentOwner        = \CMS::comments()->getCommentOwnerId();
+			$comment             = \CMS::comments()->find($id);
 			
-			return view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentModuleName'))->render();
+			return view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentTemplateName'))->render();
 		}
 
 		return redirect()->back()->with('message', 'Comment edited successfully.');
 	}
 
-	public function getDelete($id, \Illuminate\Http\Request $request)
+	/**
+	 * Remove the specified user from storage.
+	 * 
+	 * @param  integer                  $id     
+	 * @param  \Illuminate\Http\Request $request 
+	 * @return response
+	 */
+	public function getDeletecomment($id, \Illuminate\Http\Request $request)
 	{
 		\CMS::comments()->delete($id);
-
 		if($request->ajax())
 		{	
 			return 'done';
 		}
 
-		return redirect()->back()->with('message', 'comment Deleted succssefuly');
+		return redirect()->back()->with('message', 'Comment Deleted succssefuly');
 	}
 
-	public function getPaginate($commentOwner, $item, $itemId, $commentModuleName = 'mediaLibrary')
+	/**
+	 * Handle the pagination request.
+	 * 
+	 * @param  integer $commentOwnerId   The id of the registerd user 
+	 *                                   or the user's comment id in 
+	 *                                   case of unregisterd users.
+	 * @param  string $item              The name of the item the 
+	 *                                   comment belongs to. 
+	 *                                   ex: 'user', 'content' ....
+	 * @param  itneger $itemId           The id of the item the 
+	 *                                   comment belongs to. 
+	 *                                   ex: 'user', 'content' ....
+	 * @param  string $commentTemplateName
+	 * @return response
+	 */
+	public function getPaginate($commentOwnerId, $item, $itemId, $perPage, $commentTemplateName = 'comment_template')
 	{
-		return \CMS::comments()->paginateCommentTree($commentOwner, $item, $itemId, $commentModuleName);
+		return \CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage);
 	}
 }

@@ -16,8 +16,8 @@
 					$(document).on('click', deleteComment.linkClass, function(e) {
 						e.preventDefault();
 						deleteComment.url                     = $(this).attr('href');
-						deleteComment.CommentContent          = $(this).parents('div#{{ $commentModuleName }}singleComment');
-						deleteComment.errormessageContainer   = deleteComment.CommentContent.find('div#{{ $commentModuleName }}deleteErrormessageContainer');
+						deleteComment.CommentContent          = $(this).parents('#{{ $commentTemplateName }}singleComment');
+						deleteComment.errormessageContainer   = deleteComment.CommentContent.find('#{{ $commentTemplateName }}deleteErrormessageContainer');
 						deleteComment.errormessageContainerUl = deleteComment.errormessageContainer.find("ul");
 						deleteComment.ajaxAction();
 					});
@@ -60,7 +60,7 @@
 		$(document).ready(function (){
 
 			var link_delete_comment =  newdeleteCommentObj();
-			link_delete_comment.init(".{{ $commentModuleName }}delete_comment_link");
+			link_delete_comment.init(".{{ $commentTemplateName }}delete_comment_link");
 
 		});
 

@@ -3,7 +3,7 @@
 		<li class="previous">
 			<a 
 			href = "{{ $comments->previousPageUrl() }}" 
-			id   = "{{ $commentModuleName }}commentmodulePrevious"
+			id   = "{{ $commentTemplateName }}commentmodulePrevious"
 			@if($comments->previousPageUrl() == null)
 				class="btn disabled" role="button"
 			@endif
@@ -20,7 +20,7 @@
 			>
 				<a 
 				href ="{{ $comments->url($i) }}"
-				id   ="{{ $commentModuleName }}commentmoduleLinks"
+				id   ="{{ $commentTemplateName }}commentmoduleLinks"
 				>
 				{{ $i }}
 				</a>
@@ -30,7 +30,7 @@
 		<li class="next">
 			<a 
 			href = "{{ $comments->nextPageUrl() }}" 
-			id   = "{{ $commentModuleName }}commentmoduleNext"
+			id   = "{{ $commentTemplateName }}commentmoduleNext"
 			@if($comments->nextPageUrl() == null)
 				class="btn disabled" role="button"
 			@endif

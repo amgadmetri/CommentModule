@@ -63,7 +63,7 @@
   <input name="item_id" type="hidden" value="{{ $itemId }}">
   <input name="item_type" type="hidden" value="{{ $item }}">
   <input name="ip_address" type="hidden" value='{{ Request::getClientIp() }}'>
-  <input name="commentModuleName" type="hidden" value='{{ $commentModuleName }}'>
+  <input name="commentTemplateName" type="hidden" value='{{ $commentTemplateName }}'>
   
   <button type="submit" class="btn btn-default form-control">Comment</button>
 </form>

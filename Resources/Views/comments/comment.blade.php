@@ -48,9 +48,9 @@
                       <div class="comment-text">
                         {{ $comment->comment_content }}
                       </div>
-                      Status: {{ $comment->approved }}
+                      Status: {{ $comment->status }}
                       <div class="action">
-                        @if ($comment->approved === 'pending')
+                        @if ($comment->status === 'pending')
                           <a class="btn btn-success btn-xs" href='{{ url("admin/comment/approve/$comment->id") }}'>
                             Approve
                           </a> 

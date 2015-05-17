@@ -17,9 +17,9 @@
 						e.preventDefault();
 						editComment.data                    = new FormData(this);
 						editComment.url                     = $(this).attr('action');
-						editComment.CommentContent          = $(this).parents('div#{{ $commentModuleName }}singleComment');
-						editComment.errormessageContainer   = editComment.CommentContent.find('div#{{ $commentModuleName }}editErrormessageContainer');
-						editComment.messageContainer        = editComment.CommentContent.find('div#{{ $commentModuleName }}editMessageContainer');
+						editComment.CommentContent          = $(this).parents('#{{ $commentTemplateName }}singleComment');
+						editComment.errormessageContainer   = editComment.CommentContent.find('#{{ $commentTemplateName }}editErrormessageContainer');
+						editComment.messageContainer        = editComment.CommentContent.find('#{{ $commentTemplateName }}editMessageContainer');
 						editComment.messageContainerUl      = editComment.messageContainer.find("ul");
 						editComment.errormessageContainerUl = editComment.errormessageContainer.find("ul");
 						editComment.ajaxAction();
@@ -76,7 +76,7 @@
 		$(document).ready(function (){
 
 			var form_edit_comment =  neweditCommentObj();
-			form_edit_comment.init(".{{ $commentModuleName }}edit_comment_form");
+			form_edit_comment.init(".{{ $commentTemplateName }}edit_comment_form");
 
 		});
 

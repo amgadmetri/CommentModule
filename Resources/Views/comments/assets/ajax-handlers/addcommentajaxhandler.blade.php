@@ -10,11 +10,11 @@
 
 				prepare: function (formClass) {
 					addComment.formClass               = formClass;
-					addComment.errormessageContainer   = $('div#{{ $commentModuleName }}addErrormessageContainer');
-					addComment.messageContainer        = $('div#{{ $commentModuleName }}addMessageContainer');
+					addComment.errormessageContainer   = $('#{{ $commentTemplateName }}addErrormessageContainer');
+					addComment.messageContainer        = $('#{{ $commentTemplateName }}addMessageContainer');
 					addComment.messageContainerUl      = addComment.messageContainer.find("ul");
 					addComment.errormessageContainerUl = addComment.errormessageContainer.find("ul");
-					addComment.CommentContent          = $('div#{{ $commentModuleName }}CommentContent');
+					addComment.CommentContent          = $('#{{ $commentTemplateName }}CommentContent');
 				},
 
 				events: function () {

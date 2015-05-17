@@ -12,23 +12,22 @@ class CreateSettings extends Migration
 	 */
 	public function up()
 	{
-		DB::table('core_settings')->insert([
-				array(
-					'key'           => 'Allow Unregisterd User To Comment',
-					'value'         => serialize(['True']),
-					'input_type'    => 'select',
-					'select_values' => serialize(['True', 'False']),
-					'module_key'    => 'comment',
-					),
-				array(
-					'key'           => 'Allow Comment Approval',
-					'value'         => serialize(['True']),
-					'input_type'    => 'select',
-					'select_values' => serialize(['True', 'False']),
-					'module_key'    => 'comment',
-					),
-				]
-				);
+		\CMS::coreModuleSettings()->insert([
+				[
+				'key'           => 'Allow Unregisterd User To Comment',
+				'value'         => serialize(['True']),
+				'input_type'    => 'select',
+				'select_values' => serialize(['True', 'False']),
+				'module_key'    => 'comment',
+				],
+				[
+				'key'           => 'Allow Comment Approval',
+				'value'         => serialize(['True']),
+				'input_type'    => 'select',
+				'select_values' => serialize(['True', 'False']),
+				'module_key'    => 'comment',
+				],
+			]);
 	}
 
 	/**
@@ -38,6 +37,6 @@ class CreateSettings extends Migration
 	 */
 	public function down()
 	{
-		DB::table('core_settings')->where('module_key', '=', 'comment')->delete();
+		\CMS::coreModuleSettings()->delete('comment', 'module_key');
 	}
 }

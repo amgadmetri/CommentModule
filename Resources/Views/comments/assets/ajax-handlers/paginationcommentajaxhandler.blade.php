@@ -11,7 +11,7 @@
 
 				prepare: function (paginateId) {
 					paginate.paginateId     = paginateId;
-					paginate.commentContent = $('div#{{ $commentModuleName }}CommentContent');
+					paginate.commentContent = $('#{{ $commentTemplateName }}CommentContent');
 				},
 
 				events: function () {
@@ -40,13 +40,13 @@
 		$(document).ready(function (){
 
 			var commentmodulePrevious =  newPaginateObj();
-			commentmodulePrevious.init("#{{ $commentModuleName }}commentmodulePrevious");
+			commentmodulePrevious.init("#{{ $commentTemplateName }}commentmodulePrevious");
 
 			var commentmoduleNext     =  newPaginateObj();
-			commentmoduleNext.init("#{{ $commentModuleName }}commentmoduleNext");
+			commentmoduleNext.init("#{{ $commentTemplateName }}commentmoduleNext");
 
 			var commentmoduleLinks    =  newPaginateObj();
-			commentmoduleLinks.init("#{{ $commentModuleName }}commentmoduleLinks");
+			commentmoduleLinks.init("#{{ $commentTemplateName }}commentmoduleLinks");
 		});
 
 	}(jQuery));

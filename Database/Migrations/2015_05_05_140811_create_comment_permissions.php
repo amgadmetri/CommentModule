@@ -12,7 +12,7 @@ class CreateCommentPermissions extends Migration
 	 */
 	public function up()
 	{
-		foreach (\CMS::CoreModuleParts()->getModuleParts('comment') as $modulePart) 
+		foreach (\CMS::coreModuleParts()->getModuleParts('comment') as $modulePart) 
 		{
 			\CMS::permissions()->insertDefaultItemPermissions(
 				                 $modulePart->part_key, 
@@ -31,7 +31,7 @@ class CreateCommentPermissions extends Migration
 	 */
 	public function down()
 	{
-		foreach (\CMS::CoreModuleParts()->getModuleParts('comment') as $modulePart) 
+		foreach (\CMS::coreModuleParts()->getModuleParts('comment') as $modulePart) 
 		{
 			\CMS::deleteItemPermissions($modulePart->part_key);
 		}

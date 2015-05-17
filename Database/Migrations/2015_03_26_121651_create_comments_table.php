@@ -22,7 +22,7 @@ class CreateCommentsTable extends Migration
 				$table->string('email', 150)->index();
 				$table->string('comment_title', 150)->index();
 				$table->text('comment_content');
-				$table->enum('approved', ['accepted', 'pending', 'rejected'])->default('pending')->index();
+				$table->enum('status', ['accepted', 'pending', 'rejected'])->default('pending')->index();
 				$table->bigInteger('parent_id');
 				$table->bigInteger('user_id');
 				$table->string('ip_address', 45)->index();

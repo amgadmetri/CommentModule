@@ -14,7 +14,7 @@
 Route::group(['prefix' => 'admin/comment'], function() {
 
 	Route::controllers([
-		'/'            => 'CommentController'
+		'/' => 'CommentController'
 		]);
 	
 });
