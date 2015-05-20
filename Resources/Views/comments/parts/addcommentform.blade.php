@@ -62,6 +62,7 @@
   <input name="parent_id" type="hidden" value="{{ $parent_id }}">
   <input name="item_id" type="hidden" value="{{ $itemId }}">
   <input name="item_type" type="hidden" value="{{ $item }}">
+  <input name="per_page" type="hidden" value="{{ $perPage }}">
   <input name="ip_address" type="hidden" value='{{ Request::getClientIp() }}'>
   <input name="commentTemplateName" type="hidden" value='{{ $commentTemplateName }}'>
   

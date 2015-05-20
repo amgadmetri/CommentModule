@@ -29,7 +29,6 @@ class Comment extends Model {
         return $this->hasMany('App\Modules\Comment\Comment', 'parent_id');
     }
 
-
 	public static function boot()
 	{
 		parent::boot();

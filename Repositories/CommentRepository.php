@@ -1,12 +1,11 @@
 <?php namespace App\Modules\Comment\Repositories;
 
 use App\AbstractRepositories\AbstractRepository;
-use App\Modules\Comment\Comment;
 
 class CommentRepository extends AbstractRepository
 {
 	/**
-	 * Return the module full namespace.
+	 * Return the model full namespace.
 	 * 
 	 * @return string
 	 */
@@ -37,7 +36,7 @@ class CommentRepository extends AbstractRepository
 	{
 		if($item && $itemId)
 		{
-			return Comment::with($this->getRelations())->
+			return $this->model->with($this->getRelations())->
 						    where('item_type', '=', $item)->
 			                where('item_id', '=', $itemId)->
 			                where('parent_id', '=', 0)->
@@ -54,7 +53,7 @@ class CommentRepository extends AbstractRepository
 	 */
 	public function getComments($ids)
 	{
-		return Comment::whereIn('id', $ids)->get();
+		return $this->model->whereIn('id', $ids)->get();
 	}
 	
 	/**
@@ -123,7 +122,7 @@ class CommentRepository extends AbstractRepository
 		$unrigesteredUserCanComment = \CMS::coreModuleSettings()->getSettingValuByKey('Allow Unregisterd User To Comment', 'comment')[0];
 		$commentTree                = $this->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage);
 		
-		return view('comment::comments.parts.commentmodule', compact('commentTree', 'commentOwner', 'itemId', 'item', 'commentTemplateName', 'unrigesteredUserCanComment'))->render();
+		return view('comment::comments.parts.commentmodule', compact('commentTree', 'commentOwner', 'itemId', 'item', 'commentTemplateName', 'unrigesteredUserCanComment', 'perPage'))->render();
 	}
 
 	/**

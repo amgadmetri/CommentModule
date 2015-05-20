@@ -95,10 +95,11 @@ class CommentController extends BaseController {
 				$item                = $request->get('item_type');
 				$itemId              = $request->get('item_id');
 				$commentTemplateName = $request->get('commentTemplateName');
+				$perPage             = $request->get('per_page');
 				$commentOwnerId      = \CMS::comments()->getCommentOwnerId();
 
 				return response(\CMS::comments()->
-					                  paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName))->
+					                  paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage))->
 				                      withCookie(\Cookie::forever('ip_token', $token));
 			}
 
@@ -127,9 +128,10 @@ class CommentController extends BaseController {
 				$item              = $request->get('item_type');
 				$itemId            = $request->get('item_id');
 				$commentTemplateName = $request->get('commentTemplateName');
+				$perPage             = $request->get('per_page');
 				$commentOwnerId    = \CMS::comments()->getCommentOwnerId();
 
-				return response(\CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName));
+				return response(\CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage));
 			}
 
 			return redirect()->back()->with('message', 'Comment sent and waiting for approval');

@@ -18,7 +18,6 @@
            data-toggle    ="tooltip" 
            data-placement ="left" 
            title          ="{{ $comment->created_at }}" >
-
            @if ($comment->edited === '1')
             Edited
             {{ $comment->updated_at->diffForHumans() }} 
@@ -69,7 +68,7 @@
                </div>
              </p>
 
-           @else
+            @else
              <p class="text-right">
                <a data-toggle="collapse" href="#{{ $comment->id }}reply">
                  <i class="fa fa-reply"></i>
@@ -81,7 +80,7 @@
                  @include('comment::comments.parts.addcommentform', ['parent_id' => $comment->id])
                </div>
              </div>
-           @endif
+            @endif
 
          </div>        
        </div>
