@@ -16,15 +16,16 @@ class CreateCommentsTable extends Migration
 		{
 			Schema::create('comments', function(Blueprint $table) {
 				$table->bigIncrements('id');				
-				$table->bigInteger('item_id');
+				$table->bigInteger('item_id')->unsigned();
 				$table->string('item_type', 150)->index();
 				$table->string('name', 150)->index();
 				$table->string('email', 150)->index();
 				$table->string('comment_title', 150)->index();
 				$table->text('comment_content');
 				$table->enum('status', ['accepted', 'pending', 'rejected'])->default('pending')->index();
-				$table->bigInteger('parent_id');
-				$table->bigInteger('user_id');
+				$table->bigInteger('parent_id')->unsigned();
+				$table->bigInteger('user_id')->unsigned();
+				$table->foreign('user_id')->references('id')->on('users');
 				$table->string('ip_address', 45)->index();
 				$table->string('ip_token', 150)->nullable()->index();
 				$table->boolean('edited')->default(0);
