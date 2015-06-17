@@ -109,7 +109,7 @@ class CommentRepository extends AbstractRepository
 	 * @param  string $item                The name of the item the 
 	 *                                     comment belongs to. 
 	 *                                     ex: 'user', 'content' ....
-	 * @param  itneger $itemId             The id of the item the 
+	 * @param  integer $itemId             The id of the item the 
 	 *                                     comment belongs to. 
 	 *                                     ex: 'user', 'content' ....
 	 * @param  string $commentTemplateName 
@@ -133,7 +133,7 @@ class CommentRepository extends AbstractRepository
 	 * @param  string $item                The name of the item the 
 	 *                                     comment belongs to. 
 	 *                                     ex: 'user', 'content' ....
-	 * @param  itneger $itemId             The id of the item the 
+	 * @param  integer $itemId             The id of the item the 
 	 *                                     comment belongs to. 
 	 *                                     ex: 'user', 'content' ....
 	 * @param  string  $commentTemplateName 
@@ -160,7 +160,7 @@ class CommentRepository extends AbstractRepository
 	 * @param  string $item                The name of the item the 
 	 *                                     comment belongs to. 
 	 *                                     ex: 'user', 'content' ....
-	 * @param  itneger $itemId             The id of the item the 
+	 * @param  integer $itemId             The id of the item the 
 	 *                                     comment belongs to. 
 	 *                                     ex: 'user', 'content' ....
 	 * @param  string  $commentTemplateName 
