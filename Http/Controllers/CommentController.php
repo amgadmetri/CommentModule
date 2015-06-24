@@ -179,7 +179,7 @@ class CommentController extends BaseController {
 	}
 
 	/**
-	 * Remove the specified user from storage.
+	 * Remove the specified comment from storage.
 	 * 
 	 * @param  integer                  $id     
 	 * @param  \Illuminate\Http\Request $request 
