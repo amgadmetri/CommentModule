@@ -1,6 +1,6 @@
 <?php namespace App\Modules\Comment\Repositories;
 
-use App\AbstractRepositories\AbstractRepository;
+use App\Modules\Core\AbstractRepositories\AbstractRepository;
 
 class CommentRepository extends AbstractRepository
 {

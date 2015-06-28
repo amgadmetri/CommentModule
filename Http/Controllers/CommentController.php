@@ -1,6 +1,6 @@
 <?php namespace App\Modules\Comment\Http\Controllers;
 
-use App\Http\Controllers\BaseController;
+use App\Modules\Core\Http\Controllers\BaseController;
 use App\Modules\Comment\Http\Requests\AddCommentFormRequest;
 use App\Modules\Comment\Http\Requests\EditCommentFormRequest;
 
