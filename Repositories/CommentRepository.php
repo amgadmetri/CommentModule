@@ -27,6 +27,26 @@ class CommentRepository extends AbstractRepository
 	/**
 	 * Return comments belongs to a specific item.
 	 * 
+	 * @param  string  $item
+	 * @param  integer $itemId
+	 * @param  integer $perPage
+	 * @return collection
+	 */
+	public function getAllItemCommentsCount($item = false, $itemId = false)
+	{
+		if($item && $itemId)
+		{
+			return $this->model->with($this->getRelations())->
+						    where('item_type', '=', $item)->
+			                where('item_id', '=', $itemId)->
+			                where('parent_id', '=', 0)->
+			                count();    
+		}
+	}
+
+	/**
+	 * Return comments belongs to a specific item.
+	 * 
 	 * @param  string $item
 	 * @param  integer $itemId
 	 * @param  integer $perPage
@@ -120,7 +140,7 @@ class CommentRepository extends AbstractRepository
 	 */
 	public function getCommentTemplate($item, $itemId, $path = false, $perPage = 6, $commentTemplateName = 'comment_template')
 	{
-		$themeName                  = \CMS::CoreModules()->getActiveTheme()->module_key ;
+		$themeName                  = \CMS::CoreModules()->getActiveTheme()->module_key;
 		$path                       = $path ? $themeName . "::" . $path : 'comment::comments.parts';
 		$commentOwnerId             = $this->getCommentOwnerId();
 		$commentOwner               = $this->getCommentOwnerIdData($commentOwnerId);
