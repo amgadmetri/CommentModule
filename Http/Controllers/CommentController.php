@@ -211,7 +211,7 @@ class CommentController extends BaseController {
 	 * @param  string $commentTemplateName
 	 * @return response
 	 */
-	public function getPaginate($commentOwnerId, $item, $itemId, $perPage, $commentTemplateName = 'comment_template')
+	public function getPaginate($commentOwnerId, $item, $itemId, $path, $perPage, $commentTemplateName = 'comment_template')
 	{
 		return \CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage);
 	}

@@ -106,48 +106,56 @@ class CommentRepository extends AbstractRepository
 	 * Return the comment template for handling add , edit , delete
 	 * show and reply comments.
 	 * 
-	 * @param  string $item                The name of the item the 
-	 *                                     comment belongs to. 
-	 *                                     ex: 'user', 'content' ....
-	 * @param  integer $itemId             The id of the item the 
-	 *                                     comment belongs to. 
-	 *                                     ex: 'user', 'content' ....
-	 * @param  string $commentTemplateName 
+	 * @param  string  $item                The name of the item the 
+	 *                                      comment belongs to. 
+	 *                                      ex: 'user', 'content' ....
+	 * @param  integer $itemId              The id of the item the 
+	 *                                      comment belongs to. 
+	 *                                      ex: 'user', 'content' ....
+	 * @param  string  $path 			    The path to the custom comment
+	 *                            		    html template.
+	 * @param  integer $perPage 
+	 * @param  string  $commentTemplateName 
 	 * @return string
 	 */
-	public function getCommentTemplate($item, $itemId, $perPage = 6, $commentTemplateName = 'comment_template')
+	public function getCommentTemplate($item, $itemId, $path = false, $perPage = 6, $commentTemplateName = 'comment_template')
 	{
+		$themeName                  = \CMS::CoreModules()->getActiveTheme()->module_key ;
+		$path                       = $path ? $themeName . "::" . $path : 'comment::comments.parts';
 		$commentOwnerId             = $this->getCommentOwnerId();
 		$commentOwner               = $this->getCommentOwnerIdData($commentOwnerId);
 		$unrigesteredUserCanComment = \CMS::coreModuleSettings()->getSettingValuByKey('Allow Unregisterd User To Comment', 'comment')[0];
-		$commentTree                = $this->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage);
-		
-		return view('comment::comments.parts.commentmodule', compact('commentTree', 'commentOwner', 'itemId', 'item', 'commentTemplateName', 'unrigesteredUserCanComment', 'perPage'))->render();
+		$commentTree                = $this->paginateCommentTree($commentOwnerId, $item, $itemId, $path, $commentTemplateName, $perPage);
+
+		return view($path . '.commentmodule', compact('commentTree', 'commentOwner', 'itemId', 'item', 'commentTemplateName', 'unrigesteredUserCanComment', 'perPage'))->render();
 	}
 
 	/**
 	 * Prepare the comment data for pagination and call
 	 * a function to draw the comment tree.
 	 * 
-	 * @param  integer  $commentOwnerId
-	 * @param  string $item                The name of the item the 
-	 *                                     comment belongs to. 
-	 *                                     ex: 'user', 'content' ....
-	 * @param  integer $itemId             The id of the item the 
-	 *                                     comment belongs to. 
-	 *                                     ex: 'user', 'content' ....
+	 * @param  integer $commentOwnerId
+	 * @param  string  $item                The name of the item the 
+	 *                                      comment belongs to. 
+	 *                                      ex: 'user', 'content' ....
+	 * @param  integer $itemId              The id of the item the 
+	 *                                      comment belongs to. 
+	 *                                      ex: 'user', 'content' ....
+	 * @param  string  $path 			    The path to the custom comment
+	 *                            		    html template.
 	 * @param  string  $commentTemplateName 
+	 * @param  integer $perPage 
 	 * @param  integer $parent_id
 	 * @return string
 	 */
-	public function paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage, $parent_id = 0)
+	public function paginateCommentTree($commentOwnerId, $item, $itemId, $path, $commentTemplateName, $perPage, $parent_id = 0)
 	{
 		$commentOwner = $this->getCommentOwnerIdData($commentOwnerId);
 		$comments     = $this->getAllItemComments($item, $itemId, $perPage);
-		$comments->setPath(url('admin/comment/paginate', [$commentOwner, $item, $itemId, $perPage, $commentTemplateName]));
+		$comments->setPath(url('admin/comment/paginate', [$commentOwner, $item, $itemId, $path, $perPage, $commentTemplateName]));
 
-		$commentTree  = $this->getCommentTree($comments, $commentOwner, $item, $itemId, $commentTemplateName, $parent_id = 0);
-		$commentTree .= view('comment::comments.parts.paginationscommentmodule', compact('comments', 'commentTemplateName'))->render();
+		$commentTree  = $this->getCommentTree($comments, $commentOwner, $item, $itemId, $path, $commentTemplateName, $parent_id = 0);
+		$commentTree .= view($path . '.paginationscommentmodule', compact('comments', 'commentTemplateName'))->render();
 
 		return $commentTree;
 	}
@@ -163,11 +171,13 @@ class CommentRepository extends AbstractRepository
 	 * @param  integer $itemId             The id of the item the 
 	 *                                     comment belongs to. 
 	 *                                     ex: 'user', 'content' ....
+	 * @param  string  $path 			    The path to the custom comment
+	 *                            		    html template.
 	 * @param  string  $commentTemplateName 
 	 * @param  integer $parent_id
 	 * @return string
 	 */
-	public function getCommentTree($comments, $commentOwner, $item, $itemId, $commentTemplateName, $parent_id = 0)
+	public function getCommentTree($comments, $commentOwner, $item, $itemId, $path, $commentTemplateName, $parent_id = 0)
 	{
 		$commentTree = '';
 		if( ! $comments->count() && $parent_id == 0)
@@ -179,7 +189,7 @@ class CommentRepository extends AbstractRepository
 		{
 			if ($comment->parent_id == $parent_id)
 			{
-				$commentTree .= view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentTemplateName'))->render();
+				$commentTree .= view($path . '.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentTemplateName'))->render();
 			}
 		}
 		return $commentTree;
