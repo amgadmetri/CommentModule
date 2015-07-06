@@ -12,9 +12,9 @@
 */
 
 Route::group(['prefix' => 'admin/comment'], function() {
-
+	Route::get('paginate/{commentOwnerId}/{item}/{itemId}/{path}/{perPage}/{commentTemplateName}', 'CommentController@paginate');
 	Route::controllers([
 		'/' => 'CommentController'
 		]);
-	
 });
+	

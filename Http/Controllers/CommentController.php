@@ -96,10 +96,11 @@ class CommentController extends BaseController {
 				$itemId              = $request->get('item_id');
 				$commentTemplateName = $request->get('commentTemplateName');
 				$perPage             = $request->get('per_page');
+				$path                = $request->get('path');
 				$commentOwnerId      = \CMS::comments()->getCommentOwnerId();
 
 				return response(\CMS::comments()->
-					                  paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage))->
+					                  paginateCommentTree($commentOwnerId, $item, $itemId, $path, $commentTemplateName, $perPage))->
 				                      withCookie(\Cookie::forever('ip_token', $token));
 			}
 
@@ -129,9 +130,10 @@ class CommentController extends BaseController {
 				$itemId            = $request->get('item_id');
 				$commentTemplateName = $request->get('commentTemplateName');
 				$perPage             = $request->get('per_page');
+				$path                = $request->get('path');
 				$commentOwnerId    = \CMS::comments()->getCommentOwnerId();
 
-				return response(\CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage));
+				return response(\CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $path, $commentTemplateName, $perPage));
 			}
 
 			return redirect()->back()->with('message', 'Comment sent and waiting for approval');
@@ -168,11 +170,13 @@ class CommentController extends BaseController {
 		{	
 			$item                = $request->get('item_type');
 			$itemId              = $request->get('item_id');
+			$perPage             = $request->get('per_page');
+			$path                = $request->get('path');
 			$commentTemplateName = $request->get('commentTemplateName');
-			$commentOwner        = \CMS::comments()->getCommentOwnerId();
+			$commentOwner        =  \CMS::comments()->getCommentOwnerIdData(\CMS::comments()->getCommentOwnerId());
 			$comment             = \CMS::comments()->find($id);
 			
-			return view('comment::comments.parts.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentTemplateName'))->render();
+			return view($path . '.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'path', 'perPage', 'commentTemplateName'))->render();
 		}
 
 		return redirect()->back()->with('message', 'Comment edited successfully.');
@@ -208,11 +212,13 @@ class CommentController extends BaseController {
 	 * @param  integer $itemId           The id of the item the 
 	 *                                   comment belongs to. 
 	 *                                   ex: 'user', 'content' ....
+	 * @param  string  $path 			 The path to the custom comment
+	 *                            		 html template.
 	 * @param  string $commentTemplateName
 	 * @return response
 	 */
-	public function getPaginate($commentOwnerId, $item, $itemId, $path, $perPage, $commentTemplateName = 'comment_template')
+	public function paginate($commentOwnerId, $item, $itemId, $path, $perPage, $commentTemplateName)
 	{
-		return \CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $commentTemplateName, $perPage);
+		return \CMS::comments()->paginateCommentTree($commentOwnerId, $item, $itemId, $path, $commentTemplateName, $perPage);
 	}
 }

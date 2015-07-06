@@ -55,7 +55,7 @@
                             Approve
                           </a> 
                         @endif
-                        <a class="btn btn-danger btn-xs" href='{{ url("admin/comment/delete/$comment->id") }}'>
+                        <a class="btn btn-danger btn-xs" href='{{ url("admin/comment/deletecomment/$comment->id") }}'>
                           Delete
                         </a> 
                       </div>

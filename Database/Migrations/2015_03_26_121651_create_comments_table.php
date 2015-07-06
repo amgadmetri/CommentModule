@@ -25,7 +25,6 @@ class CreateCommentsTable extends Migration
 				$table->enum('status', ['accepted', 'pending', 'rejected'])->default('pending')->index();
 				$table->bigInteger('parent_id')->unsigned();
 				$table->bigInteger('user_id')->unsigned();
-				$table->foreign('user_id')->references('id')->on('users');
 				$table->string('ip_address', 45)->index();
 				$table->string('ip_token', 150)->nullable()->index();
 				$table->boolean('edited')->default(0);

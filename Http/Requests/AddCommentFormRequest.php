@@ -19,7 +19,6 @@ class AddCommentFormRequest extends FormRequest
 			'comment_content' => 'required',
 			'parent_id'       => 'required',
 			'user_id'         => 'required',
-			'ip_address'      => 'required|max:45'
 			
 		];
 	}

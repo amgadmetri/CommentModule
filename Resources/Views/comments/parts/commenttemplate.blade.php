@@ -88,6 +88,6 @@
    </div>
   </article>
   <ul>
-    {!! \CMS::comments()->getCommentTree($comment->replies, $commentOwner, $item, $itemId, $commentTemplateName, $comment->id) !!}
+    {!! \CMS::comments()->getCommentTree($comment->replies, $commentOwner, $item, $itemId, $path, $perPage, $commentTemplateName, $comment->id) !!}
   </ul>
 </li>

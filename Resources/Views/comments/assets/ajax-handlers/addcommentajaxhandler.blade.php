@@ -52,6 +52,7 @@
 						},
 						error: function(data, error, errorThrown)
 						{
+							console.log(data.responseText);
 							addComment.errormessageContainer.removeClass('hidden');
 							addComment.errormessageContainer.show();
 							addComment.errormessageContainerUl.find("li").remove();

@@ -25,22 +25,20 @@ class CommentRepository extends AbstractRepository
 	}
 
 	/**
-	 * Return comments belongs to a specific item.
+	 * Return comments count belongs to a specific item.
 	 * 
-	 * @param  string  $item
 	 * @param  integer $itemId
-	 * @param  integer $perPage
+	 * @param  string  $item
 	 * @return collection
 	 */
-	public function getAllItemCommentsCount($item = false, $itemId = false)
+	public function getAllItemCommentsCount($itemId = false, $item = false)
 	{
 		if($item && $itemId)
 		{
 			return $this->model->with($this->getRelations())->
-						    where('item_type', '=', $item)->
-			                where('item_id', '=', $itemId)->
-			                where('parent_id', '=', 0)->
-			                count();    
+						         where('item_type', '=', $item)->
+			                     where('item_id', '=', $itemId)->
+			                     count();    
 		}
 	}
 
@@ -147,7 +145,7 @@ class CommentRepository extends AbstractRepository
 		$unrigesteredUserCanComment = \CMS::coreModuleSettings()->getSettingValuByKey('Allow Unregisterd User To Comment', 'comment')[0];
 		$commentTree                = $this->paginateCommentTree($commentOwnerId, $item, $itemId, $path, $commentTemplateName, $perPage);
 
-		return view($path . '.commentmodule', compact('commentTree', 'commentOwner', 'itemId', 'item', 'commentTemplateName', 'unrigesteredUserCanComment', 'perPage'))->render();
+		return view($path . '.commentmodule', compact('commentTree', 'commentOwner', 'itemId', 'item', 'commentTemplateName', 'unrigesteredUserCanComment', 'perPage', 'path'))->render();
 	}
 
 	/**
@@ -172,9 +170,9 @@ class CommentRepository extends AbstractRepository
 	{
 		$commentOwner = $this->getCommentOwnerIdData($commentOwnerId);
 		$comments     = $this->getAllItemComments($item, $itemId, $perPage);
-		$comments->setPath(url('admin/comment/paginate', [$commentOwner, $item, $itemId, $path, $perPage, $commentTemplateName]));
+		$comments->setPath(url('admin/comment/paginate', [$commentOwner, $item, $itemId, urldecode($path), $perPage, $commentTemplateName]));
 
-		$commentTree  = $this->getCommentTree($comments, $commentOwner, $item, $itemId, $path, $commentTemplateName, $parent_id = 0);
+		$commentTree  = $this->getCommentTree($comments, $commentOwner, $item, $itemId, $path, $perPage, $commentTemplateName, $parent_id = 0);
 		$commentTree .= view($path . '.paginationscommentmodule', compact('comments', 'commentTemplateName'))->render();
 
 		return $commentTree;
@@ -197,19 +195,14 @@ class CommentRepository extends AbstractRepository
 	 * @param  integer $parent_id
 	 * @return string
 	 */
-	public function getCommentTree($comments, $commentOwner, $item, $itemId, $path, $commentTemplateName, $parent_id = 0)
+	public function getCommentTree($comments, $commentOwner, $item, $itemId, $path, $perPage, $commentTemplateName, $parent_id = 0)
 	{
 		$commentTree = '';
-		if( ! $comments->count() && $parent_id == 0)
-		{
-			$commentTree .= '<h3><p>No Comments.</p></h3>';
-		}
-
 		foreach ($comments as $comment)
 		{
 			if ($comment->parent_id == $parent_id)
 			{
-				$commentTree .= view($path . '.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'commentTemplateName'))->render();
+				$commentTree .= view($path . '.commenttemplate', compact('comment', 'commentOwner', 'item', 'itemId', 'path', 'perPage', 'commentTemplateName'))->render();
 			}
 		}
 		return $commentTree;
